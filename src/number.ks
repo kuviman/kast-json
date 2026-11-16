@@ -138,6 +138,30 @@ impl Number as module = (
         )
     );
 
+    const try_i32 = (&{
+        .neg,
+        .digits = ref digits,
+        .fraction_digits = ref fraction_digits,
+        .exponent = ref exponent,
+    } :: &Number) -> Result.t[Int32, String] => (
+        if String.length(fraction_digits |> as_str) > 0 then (
+            :Error String.from_str("JSON number with fractional part cannot be converted to Int32")
+        )
+        else if String.length(&exponent^.digits |> as_str) > 0 then (
+            :Error String.from_str("JSON number with exponent part cannot be converted to Int32")
+        )
+        else (
+            unwindable parse_uint32 (
+                with PanicHandler = {
+                    .handle = msg => unwind parse_uint32 :Error String.from_str(msg),
+                };
+                :Ok (
+                    String.parse[Int32](digits |> as_str) * (if neg then -1 else 1)
+                )
+            )
+        )
+    );
+
     const eq = (lhs :: &Number, rhs :: &Number) -> Bool => (
         lhs^.neg == rhs^.neg and
         as_str(&lhs^.digits) == as_str(&rhs^.digits) and

@@ -204,6 +204,28 @@ test!(assert!(
     "(UInt32 as IntoNumber).into has a bug",
 ));
 
+# 9
+test!((
+    let mut reader = Reader.new("5189");
+    with error = (err => panic!("\(err |> to_string)"));
+    let num = Reader.parse_number(&mut reader) |> Option.unwrap;
+    assert!(
+        &num |> Number.try_i32 |> Result.expect("shouldn't fail") == 5189,
+        "Number.try_i32 has a bug",
+    );
+));
+
+# 10
+test!((
+    let mut reader = Reader.new("-5289");
+    with error = (err => panic!("\(err |> to_string)"));
+    let num = Reader.parse_number(&mut reader) |> Option.unwrap;
+    assert!(
+        &num |> Number.try_i32 |> Result.expect("shouldn't fail") == -5289,
+        "Number.try_i32 has a bug",
+    );
+));
+
 wait_for_tests_to_finish!();
 
 print_test_results!();
